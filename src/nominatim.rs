@@ -11,7 +11,7 @@ static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_P
 
 /// Struct used to store nominatim cache and to make requests to nominatim
 pub struct Searcher {
-    cache: HashMap<String, Vec<String>>,
+    cache: HashMap<String, String>,
     client: reqwest::blocking::Client,
 }
 
@@ -34,7 +34,7 @@ impl Searcher {
         // Check if the search string is already in the cache
         if self.cache.contains_key(&search.to_string()) {
             result = match self.cache.get(&search.to_string()) {
-                Some(value) => value[0].clone(),
+                Some(value) => value.clone(),
                 None => "".to_string(),
             };
         }
@@ -48,7 +48,7 @@ impl Searcher {
             result = response.text().unwrap();
 
             // cache the result for future use
-            self.cache.insert(search.to_string(), vec![result.clone()]);
+            self.cache.insert(search.to_string(), result.clone());
         }
 
 

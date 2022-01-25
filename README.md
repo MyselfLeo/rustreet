@@ -7,7 +7,9 @@ Everybody has been at least once in this situation:
 
 Functionnalities:
 - [ ] Use [Nominatim](https://nominatim.org/) to support user-friendly search (such as _"Beaumont-du-Lac, France"_)
-- [ ] Display [OpenStreetMap](https://www.openstreetmap.org/#map=15/45.7804/1.8097) in a command-line (Ascii display)
+- [ ] Display primary roads from [OpenStreetMap](https://www.openstreetmap.org/#map=15/45.7804/1.8097) in a command-line (Ascii display)
+- [ ] Allow movement in the map
+- [ ] Change level of detail (residential roads, buildings, etc.) depending on the level of "zoom"
 
 
 
