@@ -13,17 +13,17 @@ struct Node {
 }
 
 
-
 struct Way {
-    id: u64,            // The id of the way, from Overpass API
-    nodes: Vec<Node>,   // List of nodes of the way
+    id: u64,                        // The id of the way, from Overpass API
+    nodes: Vec<Node>,               // List of nodes of the way
+    tags: HashMap<String, String>,  // Tags of this way (like "highway", "lanes", "max_speed", etc.)
 }
 
 
 struct Map {
-    display_box: geo::BoundingBox, // Only the nodes contained in this box will be displayed
-    ways: Vec<Way>, // List of ways
-    lone_nodes: Vec<Node>, // List of lone nodes (not part of any way)
+    display_box: geo::BoundingBox,  // Only the nodes contained in this box will be displayed
+    ways: Vec<Way>,                 // List of ways
+    lone_nodes: Vec<Node>,          // List of lone nodes (not part of any way)
 }
 
 impl Map {
@@ -53,9 +53,17 @@ impl Map {
 
             // Create the Way struct and retrieve each of its nodes from the hashmap
             else if element["type"] == "way" {
+
+                // List the tags to be added to the way struct
+                let mut tags: HashMap<String, String> = HashMap::new();
+                for entry in element["tags"].entries() {
+                    tags.insert(entry.0.to_string(), entry.1.to_string());
+                }
+
                 let mut way = Way {
                     id: element["id"].as_u64().unwrap(),
                     nodes: Vec::new(),
+                    tags: tags,
                 };
 
                 // Add this way's nodes
@@ -81,4 +89,9 @@ impl Map {
         // Returned finished map struct
         map
     }
+
+
+
+
+    
 }
