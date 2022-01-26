@@ -181,15 +181,15 @@ impl Searcher {
 
 
 /// Struct used to store overpass cache and to make requests to overpass
-pub struct MapData {
+pub struct OverpassData {
     cache: HashMap<String, String>,
     client: reqwest::blocking::Client,
 }
 
-impl MapData {
-    pub fn new() -> MapData {
+impl OverpassData {
+    pub fn new() -> OverpassData {
         let client = reqwest::blocking::Client::builder().user_agent(APP_USER_AGENT).build().unwrap();
-        MapData {
+        OverpassData {
             cache: HashMap::new(),
             client: client,
         }
