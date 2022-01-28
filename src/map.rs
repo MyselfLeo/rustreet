@@ -13,6 +13,7 @@ struct Node {
 }
 
 
+
 struct Way {
     id: u64,                        // The id of the way, from Overpass API
     nodes: Vec<Node>,               // List of nodes of the way
@@ -20,17 +21,96 @@ struct Way {
 }
 
 
-struct Map {
+
+impl Way {
+
+    fn default_str() -> String {
+        // String::from("\x1b[32m.\x1b[0m")
+        String::from(" ")
+    }
+
+
+    /// Return the string to be used to represent the way (char and ansi code)
+    fn get_str(&self) -> String {
+        // Green BG
+        let mut res: String = Way::default_str();
+
+        if self.tags.contains_key("highway") {
+            res = match self.tags["highway"].as_str() {
+                "motorway" => String::from("\x1b[93m▓\x1b[0m"),
+                "trunk" => String::from("\x1b[33m▒\x1b[0m"),
+                "primary" => String::from("▓"),
+                "secondary" => String::from("▓"),
+                "tertiary" => String::from("\x1b[90m░\x1b[0m"),
+                "unclassified" => String::from("\x1b[90m░\x1b[0m"),
+                "residential" => String::from("\x1b[90m░\x1b[0m"),
+                _ => res
+            }
+        }
+
+        else if self.tags.contains_key("waterway") {
+            res = String::from("\x1b[34m▒\x1b[0m");
+        }
+
+        res
+    }
+
+
+    /// Create n new Node objects to between each Nodes of this way to add more information about the path.
+    /// This will prevent the way to be displayed fragmented.
+    /// NOTE: The nodes MUST BE CORRECTLY SORTED for this to work
+    fn interpolate_nodes(&mut self, n: u32) {
+
+        // Iterate over each node until the last one
+        let mut i: usize = 0;
+
+        // Prevent attempts to subtract with overflow
+        if self.nodes.len() == 0 {return;}
+
+        while i < (self.nodes.len() - 1) {
+
+            let current_node = self.nodes[i];
+            let next_node = self.nodes[i+1];
+
+            let delta_lon = next_node.lon - current_node.lon;
+            let delta_lat = next_node.lat - current_node.lat;
+
+            let step_lon = delta_lon / (n + 1) as f64;
+            let step_lat = delta_lat / (n + 1) as f64;
+
+            // Add n nodes between current_node and next_node. Modify i accordingly
+            for _ in 0..n {
+                let new_node = Node {
+                    id: 0,
+                    lat: self.nodes[i].lat + step_lat,
+                    lon: self.nodes[i].lon + step_lon,
+                };
+
+                i += 1;
+                self.nodes.insert(i, new_node);
+            }
+
+            i += 1;
+        }
+    }
+}
+
+
+
+
+pub struct Map {
     display_box: geo::BoundingBox,  // Only the nodes contained in this box will be displayed
     ways: Vec<Way>,                 // List of ways
     lone_nodes: Vec<Node>,          // List of lone nodes (not part of any way)
+
+    pub display_size: u16,              // Size of the ascii map, in characters
 }
 
 impl Map {
 
     /// Take the data str (as returned by OverpassData struct) and parse it
-    fn from(data: String, display_box: geo::BoundingBox) -> Map {
-        let mut map = Map {display_box, ways: Vec::new(), lone_nodes: Vec::new()};
+    pub fn from(data: String, display_box: geo::BoundingBox) -> Map {
+        let mut map = Map {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_size: 100};
 
         let json_data: json::JsonValue = json::parse(&data).unwrap();
 
@@ -77,6 +157,9 @@ impl Map {
                     }
                 }
 
+                // Interpolate the nodes of that way
+                way.interpolate_nodes(map.display_size as u32);
+
                 map.ways.push(way);
             }
         }
@@ -90,6 +173,64 @@ impl Map {
         map
     }
 
+
+
+
+    /// Set the size of the displayed ascii map (in characters)
+    pub fn set_size(&mut self, size: u16) {
+        self.display_size = size;
+    }
+
+
+
+
+
+    pub fn generate_ascii_map(&self) -> Vec<Vec<String>> {
+
+        // Initialise map
+        let mut ascii_map: Vec<Vec<String>> = Vec::new();
+        for x in 0..self.display_size {
+            ascii_map.push(Vec::new());
+
+            for _ in 0..self.display_size {
+                ascii_map[x as usize].push(Way::default_str());
+            }
+        }
+
+
+
+        // For each node of each way, we get its coordinate in the asciimap and put the character representing it
+        for way in &self.ways {
+
+
+            for node in &way.nodes {
+
+                // Get the relative coordinates of the node compared to the display box
+                let rel_lat = node.lat - self.display_box.coo[0]; // lat - min_lat
+                let rel_lon = node.lon - self.display_box.coo[1]; // lon - min_lon
+                
+                // Skip this node if it's not contained in the display box
+                if rel_lat < 0.0 || rel_lon < 0.0 {continue;}
+                if rel_lat > self.display_box.dim_deg[0] || rel_lon  > self.display_box.dim_deg[1] {continue;}
+
+                // Get the character coordinates
+                let char_x = rel_lat / self.display_box.dim_deg[0] * self.display_size as f64;
+                let char_x = char_x as usize;
+
+                let char_y = rel_lon / self.display_box.dim_deg[1] * self.display_size as f64;
+                let char_y = char_y as usize;
+
+                // Add the way character to the ascii map
+                ascii_map[char_x][char_y] = way.get_str();
+            }
+
+        }
+        
+
+
+
+        ascii_map
+    }
 
 
 

@@ -1,6 +1,7 @@
 use std::f64::consts::PI;
 
 /// Represent a bounding box (a square on the map)
+#[derive(Copy, Clone)]
 pub struct BoundingBox {
     pub coo: [f64; 4], // [min_lat, min_lon, max_lat, max_lon]
     pub dim_deg: [f64; 2], // [delta lat, delta lon] (basically, width and height)

@@ -37,8 +37,7 @@ impl RequestBuilder {
     /// Take the scale of the map (i.e the width of the displayed map, in km) and return the corresponding level of details
     pub fn get_lvl_details(scale: f64) -> u8 {
         // TODO: add proper algorithm
-        if scale <= 0.5 {0} // Display everything when displaying less than 2.5km²
-        else {6} // Display only motorways
+        return 0;
     }
 
 
@@ -80,7 +79,10 @@ impl RequestBuilder {
                 request.push_str(format!("way[waterway={}]({});\n", WATERWAY_LEVELS[x as usize], bbox_str).as_str());
             }
             request.push_str(format!("way[highway={}]({});\n", HIGHWAY_LEVELS[6], bbox_str).as_str());
-            request.push_str(format!(");\nnode(w)({});\n);\nout;\n", bbox_str).as_str());
+
+            // request.push_str(format!(");\nnode(w)({});\n);\nout;\n", bbox_str).as_str());
+            request.push_str(");\nnode(w);\n);\nout;\n");
+
         }
 
         let keep_newline: bool = match with_newline {
