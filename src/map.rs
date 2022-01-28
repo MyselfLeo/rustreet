@@ -38,10 +38,10 @@ impl Way {
         if self.tags.contains_key("highway") {
             res = match self.tags["highway"].as_str() {
                 "motorway" => String::from("\x1b[93m▓\x1b[0m"),
-                "trunk" => String::from("\x1b[33m▒\x1b[0m"),
-                "primary" => String::from("▓"),
-                "secondary" => String::from("▓"),
-                "tertiary" => String::from("\x1b[90m░\x1b[0m"),
+                "trunk" => String::from("\x1b[33m▓\x1b[0m"),
+                "primary" => String::from("\x1b[33m▒\x1b[0m"),
+                "secondary" => String::from("\x1b[33m▒\x1b[0m"),
+                "tertiary" => String::from("▓"),
                 "unclassified" => String::from("\x1b[90m░\x1b[0m"),
                 "residential" => String::from("\x1b[90m░\x1b[0m"),
                 _ => res

@@ -2,15 +2,38 @@ mod api_wrapper;
 mod geo;
 mod map;
 
+use clap::Parser;
+
+
+
+
+
+// Args parsing using clap
+#[derive(Parser)]
+#[clap(author = "myselfleo", version = "0.1.0", about = "Display maps in your terminal !")]
+struct Args {
+    /// A string representing a place. Example: Paris, France
+    search: String,
+
+    /// Specifies the size of the outputted image. Default is 100
+    #[clap(short, long)]
+    size: Option<u16>,
+}
+
+
+
+
 
 
 fn main() {
-    let research = "Charnoz-sur-Ain, France";
+    // Get arguments from command line
+    let args = Args::parse();
+
 
     let mut nominatim_searcher = api_wrapper::Searcher::new();
 
-    println!("[INFO] Requesting Nominatim data for {}", research);
-    let mut base_bbox = nominatim_searcher.research(research).unwrap();
+    println!("[INFO] Requesting Nominatim data for {}", args.search);
+    let mut base_bbox = nominatim_searcher.research(&args.search).unwrap();
     println!("[INFO] Data received");
 
     // base_bbox.zoom(2.0);
@@ -22,7 +45,11 @@ fn main() {
 
     println!("[INFO] Generating map");
     let mut map = map::Map::from(data, base_bbox);
-    map.set_size(50);
+
+    if args.size.is_some() {
+        map.set_size(args.size.unwrap());
+    }
+
     println!("[INFO] Map generated");
 
     let ascii_map = map.generate_ascii_map();
