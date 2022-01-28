@@ -1,7 +1,9 @@
 use crate::geo;
+use crate::ascii_map::AsciiMap;
 
 use std::collections::HashMap;
 use json;
+
 
 
 
@@ -13,13 +15,11 @@ struct Node {
 }
 
 
-
 struct Way {
     id: u64,                        // The id of the way, from Overpass API
     nodes: Vec<Node>,               // List of nodes of the way
     tags: HashMap<String, String>,  // Tags of this way (like "highway", "lanes", "max_speed", etc.)
 }
-
 
 
 impl Way {
@@ -97,20 +97,92 @@ impl Way {
 
 
 
-
-pub struct Map {
+/// Structure used to generate a ascii map struct
+pub struct MapGenerator {
     display_box: geo::BoundingBox,  // Only the nodes contained in this box will be displayed
     ways: Vec<Way>,                 // List of ways
     lone_nodes: Vec<Node>,          // List of lone nodes (not part of any way)
 
-    pub display_size: u16,              // Size of the ascii map, in characters
+    pub display_height: u16,        // height of the ASCII Map, in characters. Width = display
+                                    // don't take the borders into account
 }
 
-impl Map {
+
+impl MapGenerator {
+
+    /*
+
+    /// Return the overylay Hashmap for a given ascii map height (width = height * 2 without borders)
+    /// The hashmap takes (x, y) coordinates as key and store the characters that should be printed at those
+    /// coordinates as values.
+    /// The hashmap is checked each time we're printing a character of the ascii map:
+    /// - if the coordinates are not in the hashmap, draw the character from the ascii map 2 times
+    /// - if the coordinates are in the hashmap, draw the character stored in it 1 time and the one from the ascii map 1 time
+    fn get_overlay_hashmap(height: usize) -> HashMap<(usize, usize), String> {
+        let hashmap: HashMap<(usize, usize), String> = HashMap::new();
+
+        // Compute the north arrow coordinates
+        hashmap.insert((height * 2 - 1, height - 2), String::from("⇯"));
+        hashmap.insert((height * 2 - 1, height - 1), String::from("N"));
+
+
+        hashmap
+    }
+
+
+
+
+    
+    /// Print the given ascii_map with the overlay
+    pub fn print_ascii_map(data: Vec<Vec<String>>) {
+        
+        // Compute height of the image (without considering borders)
+        let height = data.len();
+
+        // Get the overlay hashmap. See get_overlay_hashmap()
+        let overlay_hashmap = Map::get_overlay_hashmap(height);
+
+
+        // Print the upper border
+        print!("╔");
+        for _ in 0..height * 2 {print!("═")}
+        print!("╗\n");
+
+
+        // Print each character, checking if the current coordinates are in the overlay hashmap
+        for x in 0..height {
+
+            print!("║");
+
+            // Each characters are doubled to have a somewhat orthogonal map
+            for y in 0..(height * 2) {
+                
+                // Check if the character
+                if overlay_hashmap.contains_key((x, y)) {}
+
+                print!("{}", data[(height - 1 - x) as usize][y as usize]);
+            }
+
+            print!("║\n");
+        }
+        
+    }
+    */
+
+
+
+
+
+
+
+
+
+
+
 
     /// Take the data str (as returned by OverpassData struct) and parse it
-    pub fn from(data: String, display_box: geo::BoundingBox) -> Map {
-        let mut map = Map {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_size: 100};
+    pub fn from(data: String, display_box: geo::BoundingBox) -> MapGenerator {
+        let mut map = MapGenerator {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_height: 60};
 
         let json_data: json::JsonValue = json::parse(&data).unwrap();
 
@@ -158,7 +230,7 @@ impl Map {
                 }
 
                 // Interpolate the nodes of that way
-                way.interpolate_nodes(map.display_size as u32);
+                way.interpolate_nodes(map.display_height as u32);
 
                 map.ways.push(way);
             }
@@ -178,30 +250,27 @@ impl Map {
 
     /// Set the size of the displayed ascii map (in characters)
     pub fn set_size(&mut self, size: u16) {
-        self.display_size = size;
+        self.display_height = size;
     }
 
 
 
 
-
-    pub fn generate_ascii_map(&self) -> Vec<Vec<String>> {
+    pub fn generate_ascii_map(&self) -> AsciiMap {
 
         // Initialise map
-        let mut ascii_map: Vec<Vec<String>> = Vec::new();
-        for x in 0..self.display_size {
-            ascii_map.push(Vec::new());
+        let mut data: Vec<Vec<String>> = Vec::new();
+        for x in 0..self.display_height {
+            data.push(Vec::new());
 
-            for _ in 0..self.display_size {
-                ascii_map[x as usize].push(Way::default_str());
+            for _ in 0..self.display_height {
+                data[x as usize].push(Way::default_str());
             }
         }
 
 
-
         // For each node of each way, we get its coordinate in the asciimap and put the character representing it
         for way in &self.ways {
-
 
             for node in &way.nodes {
 
@@ -214,25 +283,22 @@ impl Map {
                 if rel_lat > self.display_box.dim_deg[0] || rel_lon  > self.display_box.dim_deg[1] {continue;}
 
                 // Get the character coordinates
-                let char_x = rel_lat / self.display_box.dim_deg[0] * self.display_size as f64;
+                let char_x = rel_lat / self.display_box.dim_deg[0] * self.display_height as f64;
                 let char_x = char_x as usize;
 
-                let char_y = rel_lon / self.display_box.dim_deg[1] * self.display_size as f64;
+                let char_y = rel_lon / self.display_box.dim_deg[1] * self.display_height as f64;
                 let char_y = char_y as usize;
 
                 // Add the way character to the ascii map
-                ascii_map[char_x][char_y] = way.get_str();
+                data[char_x][char_y] = way.get_str();
             }
 
         }
-        
 
 
-
+        // Return the AsciiMap
+        let mut ascii_map = AsciiMap::from(data);
+        ascii_map.double();
         ascii_map
     }
-
-
-
-    
 }

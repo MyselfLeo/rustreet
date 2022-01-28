@@ -1,6 +1,7 @@
 mod api_wrapper;
 mod geo;
 mod map;
+mod ascii_map;
 
 use clap::Parser;
 
@@ -15,7 +16,7 @@ struct Args {
     /// A string representing a place. Example: Paris, France
     search: String,
 
-    /// Specifies the size of the outputted image. Default is 100
+    /// Specifies the size of the outputted image. Default is 60
     #[clap(short, long)]
     size: Option<u16>,
 }
@@ -36,7 +37,7 @@ fn main() {
     let mut base_bbox = nominatim_searcher.research(&args.search).unwrap();
     println!("[INFO] Data received");
 
-    // base_bbox.zoom(2.0);
+    //base_bbox.zoom(3.0);
     let mut overpass_data = api_wrapper::OverpassData::new();
 
     println!("[INFO] Requesting data from Overpass API");
@@ -44,7 +45,7 @@ fn main() {
     println!("[INFO] Data received");
 
     println!("[INFO] Generating map");
-    let mut map = map::Map::from(data, base_bbox);
+    let mut map = map::MapGenerator::from(data, base_bbox);
 
     if args.size.is_some() {
         map.set_size(args.size.unwrap());
@@ -54,19 +55,6 @@ fn main() {
 
     let ascii_map = map.generate_ascii_map();
 
-    print!("╔");
-    for _ in 0..map.display_size * 2 {print!("═")}
-    print!("╗\n");
-
-    for x in 0..map.display_size {
-        print!("║");
-        for y in 0..map.display_size {
-            print!("{}{}", ascii_map[(map.display_size - 1 - x) as usize][y as usize], ascii_map[(map.display_size - 1 - x) as usize][y as usize]);
-        }
-        print!("║\n");
-    }
-
-    print!("╚");
-    for _ in 0..map.display_size * 2 {print!("═")}
-    print!("╝\n");
+    let with_dec = ascii_map.with_decoration();
+    with_dec.print();
 }
