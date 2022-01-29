@@ -35,7 +35,6 @@ impl BoundingBox {
     /// Resize this bounding box to represent a square. The size of the square is the smallest side of the bounding box.
     /// The bounding box is resize accordingly to its size in kilometers, not in lon/lat degrees.
     pub fn resize(&mut self) {
-        self.compute_size();
 
         // Compute the new size of the bounding box
         let new_dim_km = [self.dim_km[0].min(self.dim_km[1]), self.dim_km[0].min(self.dim_km[1])];
@@ -51,6 +50,9 @@ impl BoundingBox {
         self.coo[2] -= delta_width;
         self.coo[1] += delta_height;
         self.coo[3] -= delta_height;
+
+        // Compte new size
+        self.compute_size();
     }
 
 

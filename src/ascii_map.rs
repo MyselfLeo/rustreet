@@ -79,8 +79,8 @@ impl AsciiMap {
 
 
         // Add the compass rose (the north arrow) on the map
-        new_data[2][(self.width - 3) as usize] = String::from("⇯");
-        new_data[3][(self.width - 3) as usize] = String::from("N");
+        new_data[3][(self.width - 3) as usize] = String::from("⇯");
+        new_data[2][(self.width - 3) as usize] = String::from("N");
 
 
         // Return the decorated AsciiMap

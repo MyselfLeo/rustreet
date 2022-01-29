@@ -25,7 +25,6 @@ struct Way {
 impl Way {
 
     fn default_str() -> String {
-        // String::from("\x1b[32m.\x1b[0m")
         String::from(" ")
     }
 
@@ -109,74 +108,6 @@ pub struct MapGenerator {
 
 
 impl MapGenerator {
-
-    /*
-
-    /// Return the overylay Hashmap for a given ascii map height (width = height * 2 without borders)
-    /// The hashmap takes (x, y) coordinates as key and store the characters that should be printed at those
-    /// coordinates as values.
-    /// The hashmap is checked each time we're printing a character of the ascii map:
-    /// - if the coordinates are not in the hashmap, draw the character from the ascii map 2 times
-    /// - if the coordinates are in the hashmap, draw the character stored in it 1 time and the one from the ascii map 1 time
-    fn get_overlay_hashmap(height: usize) -> HashMap<(usize, usize), String> {
-        let hashmap: HashMap<(usize, usize), String> = HashMap::new();
-
-        // Compute the north arrow coordinates
-        hashmap.insert((height * 2 - 1, height - 2), String::from("⇯"));
-        hashmap.insert((height * 2 - 1, height - 1), String::from("N"));
-
-
-        hashmap
-    }
-
-
-
-
-    
-    /// Print the given ascii_map with the overlay
-    pub fn print_ascii_map(data: Vec<Vec<String>>) {
-        
-        // Compute height of the image (without considering borders)
-        let height = data.len();
-
-        // Get the overlay hashmap. See get_overlay_hashmap()
-        let overlay_hashmap = Map::get_overlay_hashmap(height);
-
-
-        // Print the upper border
-        print!("╔");
-        for _ in 0..height * 2 {print!("═")}
-        print!("╗\n");
-
-
-        // Print each character, checking if the current coordinates are in the overlay hashmap
-        for x in 0..height {
-
-            print!("║");
-
-            // Each characters are doubled to have a somewhat orthogonal map
-            for y in 0..(height * 2) {
-                
-                // Check if the character
-                if overlay_hashmap.contains_key((x, y)) {}
-
-                print!("{}", data[(height - 1 - x) as usize][y as usize]);
-            }
-
-            print!("║\n");
-        }
-        
-    }
-    */
-
-
-
-
-
-
-
-
-
 
 
 

@@ -37,7 +37,7 @@ impl RequestBuilder {
     /// Take the scale of the map (i.e the width of the displayed map, in km) and return the corresponding level of details
     pub fn get_lvl_details(scale: f64) -> u8 {
         // TODO: add proper algorithm
-        return 4;
+        return 2;
     }
 
 
@@ -51,10 +51,14 @@ impl RequestBuilder {
         }
     }
 
+
+
     /// Set whether to get the buildings or not.
     pub fn get_building(&mut self, value: bool) {
         self.get_building = value;
     }
+
+
 
     /// Build the request text to pass to Overpass API
     pub fn get_request_txt(&self, with_newline: Option<bool>) -> String {
@@ -189,6 +193,8 @@ pub struct OverpassData {
 }
 
 impl OverpassData {
+
+    /// Return a newly created OverpassData struct
     pub fn new() -> OverpassData {
         let client = reqwest::blocking::Client::builder().user_agent(APP_USER_AGENT).build().unwrap();
         OverpassData {
@@ -196,6 +202,8 @@ impl OverpassData {
             client: client,
         }
     }
+
+
 
 
     /// Takes a bounding box as parameter (min lat, min long, max lat, max long) and returns the result of the Overpass API.
