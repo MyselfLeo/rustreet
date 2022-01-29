@@ -37,7 +37,7 @@ fn main() {
     let mut base_bbox = nominatim_searcher.research(&args.search).unwrap();
     println!("[INFO] Data received");
 
-    //base_bbox.zoom(3.0);
+    base_bbox.zoom(3.0);
     let mut overpass_data = api_wrapper::OverpassData::new();
 
     println!("[INFO] Requesting data from Overpass API");

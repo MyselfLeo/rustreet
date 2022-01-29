@@ -15,6 +15,15 @@ struct Node {
 }
 
 
+struct WayNode<'a> {
+    id: u64,
+    lat: f64,
+    lon: f64,
+    previous: &'a WayNode<'a>,
+}
+
+
+
 struct Way {
     id: u64,                        // The id of the way, from Overpass API
     nodes: Vec<Node>,               // List of nodes of the way
@@ -211,14 +220,17 @@ impl MapGenerator {
                 
                 // Skip this node if it's not contained in the display box
                 if rel_lat < 0.0 || rel_lon < 0.0 {continue;}
-                if rel_lat > self.display_box.dim_deg[0] || rel_lon  > self.display_box.dim_deg[1] {continue;}
+                if rel_lat > self.display_box.dim_deg[0] || rel_lon > self.display_box.dim_deg[1] {continue;}
 
                 // Get the character coordinates
                 let char_x = rel_lat / self.display_box.dim_deg[0] * self.display_height as f64;
-                let char_x = char_x as usize;
+                let char_x = char_x.floor() as usize;
 
                 let char_y = rel_lon / self.display_box.dim_deg[1] * self.display_height as f64;
-                let char_y = char_y as usize;
+                let char_y = char_y.floor() as usize;
+
+                // If the point is out of bounds, skip without adding it to the data
+                if char_x >= self.display_height as usize || char_y >= self.display_height as usize {continue;}
 
                 // Add the way character to the ascii map
                 data[char_x][char_y] = way.get_str();
