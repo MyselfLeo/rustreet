@@ -1,9 +1,24 @@
 use crate::geo;
 use crate::ascii_map::AsciiMap;
 
+use std::f64::consts::PI;
 use std::collections::HashMap;
 use json;
 
+
+
+
+
+const TERTIARY_CHARACTERS: [&str; 4] = ["-", "/", "|", "\\"];
+
+
+
+
+
+
+
+/// Return true if n is between m1 and m2 (included)
+fn is_between(n: f64, m1: f64, m2: f64) -> bool {n >= m1 && n <= m2}
 
 
 
@@ -22,10 +37,7 @@ struct Node {
 
 
 impl Node {
-
-    /// Return the angle of this Node relative to the East-West direction.
-    /// - A road going East-West will have an angle of 0.0
-    /// - A road going South-North will have an angle of 1.0
+    /// Return the angle (in degrees) of this Node relative to the East-West direction.
     /// 
     /// The angle is determined relative to the previous node coordinates (if any) and
     /// the next node coordinates (if any).
@@ -36,8 +48,8 @@ impl Node {
         if self.previous_lat.is_none() && self.next_lat.is_none() {return 0.0;}
 
 
-        let mut d_lat: f64;
-        let mut d_lon: f64;
+        let d_lat: f64;
+        let d_lon: f64;
 
         // Choose the 2 points used to compute the angle
         if self.previous_lat.is_some() && self.next_lat.is_some() {
@@ -53,11 +65,20 @@ impl Node {
             d_lon = self.next_lon.unwrap() - self.lon;
         }
 
-        // Compute the angle
-        let angle = (d_lat / d_lon).atan(); // In radians
+        // Compute the angle and return it in degrees
+        (d_lat / d_lon).atan() * 180.0 / PI
+    }
 
-        // The returned value is the absolute of sin(angle). This will return a value between 0.0 and 1.0
-        angle.sin().abs()
+
+    fn get_string_rep(&self) -> &str {
+        let angle = self.get_angle();
+
+        // Return the correct string corresponding to the angle
+        if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {TERTIARY_CHARACTERS[0]}
+        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {TERTIARY_CHARACTERS[1]}
+        else if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {TERTIARY_CHARACTERS[2]}
+        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {TERTIARY_CHARACTERS[3]}
+        else {"-"}
     }
 }
 
