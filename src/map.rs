@@ -7,20 +7,62 @@ use json;
 
 
 
+
 #[derive(Copy, Clone)]
 struct Node {
     id: u64,
     lat: f64,
     lon: f64,
+
+    previous_lat: Option<f64>,
+    previous_lon: Option<f64>,
+    next_lat: Option<f64>,
+    next_lon: Option<f64>,
 }
 
 
-struct WayNode<'a> {
-    id: u64,
-    lat: f64,
-    lon: f64,
-    previous: &'a WayNode<'a>,
+impl Node {
+
+    /// Return the angle of this Node relative to the East-West direction.
+    /// - A road going East-West will have an angle of 0.0
+    /// - A road going South-North will have an angle of 1.0
+    /// 
+    /// The angle is determined relative to the previous node coordinates (if any) and
+    /// the next node coordinates (if any).
+    /// If the node is alone (no previous nor next nodes), the function will return 0.
+    fn get_angle(&self) -> f64 {
+
+        // If nor previous_lat or next_lat are specified, return 0
+        if self.previous_lat.is_none() && self.next_lat.is_none() {return 0.0;}
+
+
+        let mut d_lat: f64;
+        let mut d_lon: f64;
+
+        // Choose the 2 points used to compute the angle
+        if self.previous_lat.is_some() && self.next_lat.is_some() {
+            d_lat = self.next_lat.unwrap() - self.previous_lat.unwrap();
+            d_lon = self.next_lon.unwrap() - self.previous_lon.unwrap();
+        }
+        else if self.previous_lat.is_some() {
+            d_lat = self.lat - self.previous_lat.unwrap();
+            d_lon = self.lon - self.previous_lon.unwrap();
+        }
+        else {
+            d_lat = self.next_lat.unwrap() - self.lat;
+            d_lon = self.next_lon.unwrap() - self.lon;
+        }
+
+        // Compute the angle
+        let angle = (d_lat / d_lon).atan(); // In radians
+
+        // The returned value is the absolute of sin(angle). This will return a value between 0.0 and 1.0
+        angle.sin().abs()
+    }
 }
+
+
+
 
 
 
@@ -64,6 +106,24 @@ impl Way {
     }
 
 
+    /// Append a node to this way. Modify the node to change previous_lat/lon and next_lat/lon values
+    fn add_node(&mut self, mut node: Node) {
+        if self.nodes.len() > 0 {
+            let last_node_id = self.nodes.len() - 1;
+
+            self.nodes[last_node_id].next_lat = Some(node.lat);
+            self.nodes[last_node_id].next_lon = Some(node.lon);
+
+            node.previous_lat = Some(self.nodes[last_node_id].lat);
+            node.previous_lon = Some(self.nodes[last_node_id].lon);
+        }
+
+        self.nodes.push(node);
+    }
+
+
+
+
     /// Create n new Node objects to between each Nodes of this way to add more information about the path.
     /// This will prevent the way to be displayed fragmented.
     /// NOTE: The nodes MUST BE CORRECTLY SORTED for this to work
@@ -88,14 +148,24 @@ impl Way {
 
             // Add n nodes between current_node and next_node. Modify i accordingly
             for _ in 0..n {
+                // Create a new node object
                 let new_node = Node {
                     id: 0,
                     lat: self.nodes[i].lat + step_lat,
                     lon: self.nodes[i].lon + step_lon,
+                    
+                    previous_lat: Some(self.nodes[i].lat),
+                    previous_lon: Some(self.nodes[i].lon),
+                    next_lat: Option::None,
+                    next_lon: Option::None,
                 };
 
                 i += 1;
                 self.nodes.insert(i, new_node);
+
+                // Add to the previous node the coordinates of its next node
+                self.nodes[i - 1].next_lat = Some(self.nodes[i].lat);
+                self.nodes[i - 1].next_lon = Some(self.nodes[i].lon);
             }
 
             i += 1;
@@ -105,19 +175,19 @@ impl Way {
 
 
 
+
+
 /// Structure used to generate a ascii map struct
 pub struct MapGenerator {
-    display_box: geo::BoundingBox,  // Only the nodes contained in this box will be displayed
-    ways: Vec<Way>,                 // List of ways
-    lone_nodes: Vec<Node>,          // List of lone nodes (not part of any way)
+    display_box: geo::BoundingBox,         // Only the nodes contained in this box will be displayed
+    ways: Vec<Way>,                        // List of ways
+    lone_nodes: Vec<Node>,                 // List of nodes (not part of any way)
 
-    pub display_height: u16,        // height of the ASCII Map, in characters. Width = display
-                                    // don't take the borders into account
+    pub display_height: u16,               // height of the ASCII Map, in characters. Width = display. don't take the borders into account
 }
 
 
 impl MapGenerator {
-
 
 
     /// Take the data str (as returned by OverpassData struct) and parse it
@@ -139,7 +209,13 @@ impl MapGenerator {
                     id: element["id"].as_u64().unwrap(),
                     lat: element["lat"].as_f64().unwrap(),
                     lon: element["lon"].as_f64().unwrap(),
+
+                    previous_lat: Option::None,
+                    previous_lon: Option::None,
+                    next_lat: Option::None,
+                    next_lon: Option::None,
                 };
+                
                 nodes.insert(node.id, node);
             }
 
@@ -165,7 +241,7 @@ impl MapGenerator {
                     if nodes.contains_key(&id_as_u64) {
                         // Remove the node from the hashmap, push it to the way's vector
                         let node = nodes.remove(&id_as_u64).unwrap();
-                        way.nodes.push(node);
+                        way.add_node(node);
                     }
                 }
 
