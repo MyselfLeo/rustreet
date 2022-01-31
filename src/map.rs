@@ -33,6 +33,9 @@ struct Node {
     previous_lon: Option<f64>,
     next_lat: Option<f64>,
     next_lon: Option<f64>,
+
+    // The value of highway or waterway
+    way_type: Option<>,
 }
 
 
@@ -66,7 +69,7 @@ impl Node {
         }
 
         // Compute the angle and return it in degrees
-        (d_lat / d_lon).atan() * 180.0 / PI
+        ((d_lat / d_lon).atan() * 180.0 / PI) + 90.0
     }
 
 
@@ -74,10 +77,10 @@ impl Node {
         let angle = self.get_angle();
 
         // Return the correct string corresponding to the angle
-        if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {TERTIARY_CHARACTERS[0]}
-        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {TERTIARY_CHARACTERS[1]}
-        else if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {TERTIARY_CHARACTERS[2]}
-        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {TERTIARY_CHARACTERS[3]}
+        if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {TERTIARY_CHARACTERS[2]}
+        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {TERTIARY_CHARACTERS[3]}
+        else if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {TERTIARY_CHARACTERS[0]}
+        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {TERTIARY_CHARACTERS[1]}
         else {"-"}
     }
 }
@@ -330,7 +333,7 @@ impl MapGenerator {
                 if char_x >= self.display_height as usize || char_y >= self.display_height as usize {continue;}
 
                 // Add the way character to the ascii map
-                data[char_x][char_y] = way.get_str();
+                data[char_x][char_y] = String::from(node.get_string_rep());
             }
 
         }

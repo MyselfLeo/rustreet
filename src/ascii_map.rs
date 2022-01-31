@@ -35,7 +35,8 @@ impl AsciiMap {
             // Add 2 times the characters
             for y in 0..self.width {
                 new_data[x as usize].push(String::from(&self.data[x as usize][y as usize]));
-                new_data[x as usize].push(String::from(&self.data[x as usize][y as usize]));
+                //new_data[x as usize].push(String::from(&self.data[x as usize][y as usize]));
+                new_data[x as usize].push(String::from(" "));
             }
         }
 
