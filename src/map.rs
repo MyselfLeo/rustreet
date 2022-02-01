@@ -10,6 +10,7 @@ use json;
 
 
 const TERTIARY_CHARACTERS: [&str; 4] = ["-", "/", "|", "\\"];
+const SECONDARY_CHARACTERS: [&str; 4] = ["═", "/", "║", "\\"];
 
 
 
