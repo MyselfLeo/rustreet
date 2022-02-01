@@ -34,8 +34,7 @@ struct Node {
     next_lat: Option<f64>,
     next_lon: Option<f64>,
 
-    // The value of highway or waterway
-    way_type: Option<>,
+    way_type: u8, // 0 = not a way, 1x = highway, 2x = waterway, x is its level
 }
 
 
@@ -182,6 +181,8 @@ impl Way {
                     previous_lon: Some(self.nodes[i].lon),
                     next_lat: Option::None,
                     next_lon: Option::None,
+
+                    way_type: self.nodes[i].way_type,
                 };
 
                 i += 1;
@@ -238,6 +239,8 @@ impl MapGenerator {
                     previous_lon: Option::None,
                     next_lat: Option::None,
                     next_lon: Option::None,
+
+                    way_type: 10, // TODO: USE PROPER SETUP
                 };
                 
                 nodes.insert(node.id, node);
