@@ -10,7 +10,7 @@ use json;
 
 
 const TERTIARY_CHARACTERS: [&str; 4] = ["-", "/", "|", "\\"];
-const SECONDARY_CHARACTERS: [&str; 4] = ["═", "/", "║", "\\"];
+const SECONDARY_CHARACTERS: [&str; 4] = ["\x1b[33m═\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m║\x1b[0m", "\x1b[33m\\\x1b[0m"];
 
 
 
@@ -76,12 +76,21 @@ impl Node {
     fn get_string_rep(&self) -> &str {
         let angle = self.get_angle();
 
+        let mut i: usize = 0;
+
         // Return the correct string corresponding to the angle
-        if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {TERTIARY_CHARACTERS[2]}
-        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {TERTIARY_CHARACTERS[3]}
-        else if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {TERTIARY_CHARACTERS[0]}
-        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {TERTIARY_CHARACTERS[1]}
-        else {"-"}
+        if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {i = 0;}
+        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {i = 1;}
+        else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {i = 2;}
+        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {i = 3;}
+        
+        
+        match self.way_type {
+            0 => " ",
+            13 => SECONDARY_CHARACTERS[i],
+            14 => SECONDARY_CHARACTERS[i],
+            _ => TERTIARY_CHARACTERS[i],
+        }
     }
 }
 
@@ -241,7 +250,7 @@ impl MapGenerator {
                     next_lat: Option::None,
                     next_lon: Option::None,
 
-                    way_type: 10, // TODO: USE PROPER SETUP
+                    way_type: 13, // TODO: USE PROPER SETUP
                 };
                 
                 nodes.insert(node.id, node);
