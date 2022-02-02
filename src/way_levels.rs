@@ -1,0 +1,39 @@
+
+
+const MOTORWAY: u8 = 10;
+const TRUNK: u8 = 10;
+const PRIMARY: u8 = 11;
+const SECONDARY: u8 = 12;
+const TERTIARY: u8 = 13;
+const UNCLASSIFIED: u8 = 13;
+const RESIDENTIAL: u8 = 14;
+const MOTORWAY_LINK: u8 = 10;
+const TRUNK_LINK: u8 = 10;
+const PRIMARY_LINK: u8 = 11;
+const SECONDARY_LINK: u8 = 12;
+const TERTIARY_LINK: u8 = 13;
+const LIVING_STREET: u8 = 14;
+const SERVICE: u8 = 13;
+const PEDESTRIAN: u8 = 15;
+const TRACK: u8 = 15;
+const BUS_GUIDEWAY: u8 = 12;
+const ESCAPE: u8 = 15;
+const RACEWAY: u8 = 15;
+const ROAD: u8 = 13;
+const BUSWAY: u8 = 12;
+const FOOTWAY: u8 = 15;
+const BRIDLEWAY: u8 = 15;
+const STEPS: u8 = 15;
+const CORRIDOR: u8 = 16;
+const PATH: u8 = 15;
+
+const RIVER: u8 = 20;
+const RIVERBANK: u8 = 20;
+const STREAM: u8 = 21;
+const TIDAL_CHANNEL: u8 = 21;
+const CANAL: u8 = 21;
+const PRESSURISED: u8 = 22;
+const DRAIN: u8 = 23;
+const DITCH: u8 = 23;
+const FAIRWAY: u8 = 23;
+const FISH_PASS: u8 = 24;
