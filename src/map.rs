@@ -18,11 +18,6 @@ const SECONDARY_CHARACTERS: [&str; 4] = ["\x1b[33m═\x1b[0m", "\x1b[33m/\x1b[0m
 
 
 
-/// Return true if n is between m1 and m2 (included)
-fn is_between(n: f64, m1: f64, m2: f64) -> bool {n >= m1 && n <= m2}
-
-
-
 
 #[derive(Copy, Clone)]
 struct Node {

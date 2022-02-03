@@ -2,7 +2,7 @@ mod api_wrapper;
 mod geo;
 mod map;
 mod ascii_map;
-mod way_levels;
+mod style;
 
 use clap::Parser;
 
