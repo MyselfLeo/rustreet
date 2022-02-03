@@ -1,7 +1,9 @@
 const PRIMAY_HIGHWAY: [&str; 4] = ["\x1b[33m═\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m║\x1b[0m", "\x1b[33m\\\x1b[0m"];
 const SECONDARY_HIGHWAY: [&str; 4] = ["═", "/", "║", "\\"];
-const TERTIARY_HIGHWAY: [&str; 4] = ["-", "/", "|", "\\"];
+const TERTIARY_HIGHWAY: [&str; 4] = ["\x1b[33m-\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m|\x1b[0m", "\x1b[33m\\\x1b[0m"];
+const QUATERNARY_HIGHWAY: [&str; 4] = ["-", "/", "|", "\\"];
 const SMALL_HIGHWAY: [&str; 4] = ["\x1b[32m-\x1b[0m", "\x1b[32m/\x1b[0m", "\x1b[32m|\x1b[0m", "\x1b[32m\\\x1b[0m"];
+const VERY_SMALL_HIGHWAY: [&str; 4] = ["⋯", "⋰", "⋮", "⋱"];
 
 
 
@@ -17,40 +19,40 @@ fn get_road_repr(road_type: &str, angle: f64) {
     
     // Get the orientation of the character.
     // Example with a simple line: 0= -, 1= /, 2= |, 3= \
-    let orientation: u8 = 0;
+    let orientation: usize = 0;
     if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {let orientation = 0;}
     else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {let orientation = 1;}
     else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {let orientation = 2;}
     else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {let orientation = 3;}
 
     
-    let value: u8 = match road_type {
-        "motorway" => 10,
-        "trunk" => 10,
-        "primary" => 11,
-        "secondary" => 12,
-        "tertiary" => 13,
-        "unclassified" => 13,
-        "residential" => 14,
-        "motorway_link" => 10,
-        "trunk_link" => 10,
-        "primary_link" => 11,
-        "secondary_link" => 12,
-        "tertiary_link" => 13,
-        "living_street" => 14,
-        "service" => 13,
-        "pedestrian" => 15,
-        "track" => 15,
-        "bus_guideway" => 12,
-        "escape" => 15,
-        "raceway" => 15,
-        "road" => 13,
-        "busway" => 12,
-        "footway" => 15,
-        "bridleway" => 15,
-        "steps" => 15,
-        "corridor" => 16,
-        "path" => 15,
+    match road_type {
+        "motorway" => String::from(PRIMAY_HIGHWAY[orientation]),
+        "trunk" => String::from(PRIMAY_HIGHWAY[orientation]),
+        "primary" => String::from(SECONDARY_HIGHWAY[orientation]),
+        "secondary" => String::from(TERTIARY_HIGHWAY[orientation]),
+        "tertiary" => String::from(QUATERNARY_HIGHWAY[orientation]),
+        "unclassified" => String::from(QUATERNARY_HIGHWAY[orientation]),
+        "residential" => String::from(SMALL_HIGHWAY[orientation]),
+        "motorway_link" => String::from(PRIMAY_HIGHWAY[orientation]),
+        "trunk_link" => String::from(PRIMAY_HIGHWAY[orientation]),
+        "primary_link" => String::from(SECONDARY_HIGHWAY[orientation]),
+        "secondary_link" => String::from(TERTIARY_HIGHWAY[orientation]),
+        "tertiary_link" => String::from(QUATERNARY_HIGHWAY[orientation]),
+        "living_street" => String::from(SMALL_HIGHWAY[orientation]),
+        "service" => String::from(QUATERNARY_HIGHWAY[orientation]),
+        "pedestrian" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "track" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "bus_guideway" => String::from(TERTIARY_HIGHWAY[orientation]),
+        "escape" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "raceway" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "road" => String::from(QUATERNARY_HIGHWAY[orientation]),
+        "busway" => String::from(TERTIARY_HIGHWAY[orientation]),
+        "footway" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "bridleway" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "steps" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "corridor" => String::from(VERY_SMALL_HIGHWAY[orientation]),
+        "path" => String::from(VERY_SMALL_HIGHWAY[orientation]),
 
         "river" => 20,
         "riverbank" => 20,
