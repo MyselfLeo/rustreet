@@ -15,15 +15,19 @@ fn is_between(n: f64, m1: f64, m2: f64) -> bool {n >= m1 && n <= m2}
 
 /// Return the string (a character and ansi escape codes, if any) representing a node
 /// of the road_type (ex: motorway, secondary, path...) with the given angle
-fn get_road_repr(road_type: &str, angle: f64) {
+pub fn get_road_repr(road_type: String, angle: f64) -> String {
+
+    println!("{}", road_type);
+
+    let road_type = road_type.as_str();
     
     // Get the orientation of the character.
     // Example with a simple line: 0= -, 1= /, 2= |, 3= \
-    let orientation: usize = 0;
-    if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {let orientation = 0;}
-    else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {let orientation = 1;}
-    else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {let orientation = 2;}
-    else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {let orientation = 3;}
+    let mut orientation: usize = 0;
+    if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {orientation = 0;}
+    else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {orientation = 1;}
+    else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {orientation = 2;}
+    else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {orientation = 3;}
 
     
     match road_type {
@@ -54,6 +58,7 @@ fn get_road_repr(road_type: &str, angle: f64) {
         "corridor" => String::from(VERY_SMALL_HIGHWAY[orientation]),
         "path" => String::from(VERY_SMALL_HIGHWAY[orientation]),
 
+        /*
         "river" => 20,
         "riverbank" => 20,
         "stream" => 21,
@@ -64,7 +69,8 @@ fn get_road_repr(road_type: &str, angle: f64) {
         "ditch" => 23,
         "fairway" => 23,
         "fish_pass" => 24,
-    };
+        */
 
-
+        _ => String::from(" "),
+    }
 }

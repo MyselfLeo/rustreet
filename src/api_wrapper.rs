@@ -37,7 +37,7 @@ impl RequestBuilder {
     /// Take the scale of the map (i.e the width of the displayed map, in km) and return the corresponding level of details
     pub fn get_lvl_details(scale: f64) -> u8 {
         // TODO: add proper algorithm
-        return 2;
+        return 0;
     }
 
 

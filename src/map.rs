@@ -1,4 +1,5 @@
 use crate::geo;
+use crate::style::get_road_repr;
 use crate::ascii_map::AsciiMap;
 
 use std::f64::consts::PI;
@@ -9,17 +10,7 @@ use json;
 
 
 
-const TERTIARY_CHARACTERS: [&str; 4] = ["-", "/", "|", "\\"];
-const SECONDARY_CHARACTERS: [&str; 4] = ["\x1b[33m═\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m║\x1b[0m", "\x1b[33m\\\x1b[0m"];
-
-
-
-
-
-
-
-
-#[derive(Copy, Clone)]
+#[derive(Clone, Copy)]
 struct Node {
     id: u64,
     lat: f64,
@@ -30,7 +21,7 @@ struct Node {
     next_lat: Option<f64>,
     next_lon: Option<f64>,
 
-    way_type: u8, // 0 = not a way, 1x = highway, 2x = waterway, x is its level
+    way_type: Option<String>,
 }
 
 
@@ -68,24 +59,9 @@ impl Node {
     }
 
 
-    fn get_string_rep(&self) -> &str {
-        let angle = self.get_angle();
-
-        let mut i: usize = 0;
-
-        // Return the correct string corresponding to the angle
-        if is_between(angle, 67.5, 112.5) || is_between(angle, 247.5, 292.5) {i = 0;}
-        else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {i = 1;}
-        else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {i = 2;}
-        else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {i = 3;}
-        
-        
-        match self.way_type {
-            0 => " ",
-            13 => SECONDARY_CHARACTERS[i],
-            14 => SECONDARY_CHARACTERS[i],
-            _ => TERTIARY_CHARACTERS[i],
-        }
+    fn get_string_rep(&self) -> String {
+        if self.way_type.is_none() {String::from(" ")}
+        else {get_road_repr(self.way_type.unwrap(), self.get_angle())}
     }
 }
 
@@ -235,6 +211,7 @@ impl MapGenerator {
 
             // Add the node to the nodes temporary hashmap
             if element["type"] == "node" {
+
                 let node = Node {
                     id: element["id"].as_u64().unwrap(),
                     lat: element["lat"].as_f64().unwrap(),
@@ -245,7 +222,7 @@ impl MapGenerator {
                     next_lat: Option::None,
                     next_lon: Option::None,
 
-                    way_type: 13, // TODO: USE PROPER SETUP
+                    way_type: Option::None, // Will be changed in
                 };
                 
                 nodes.insert(node.id, node);
@@ -263,7 +240,7 @@ impl MapGenerator {
                 let mut way = Way {
                     id: element["id"].as_u64().unwrap(),
                     nodes: Vec::new(),
-                    tags: tags,
+                    tags: tags.clone(),
                 };
 
                 // Add this way's nodes
@@ -271,8 +248,20 @@ impl MapGenerator {
                     let id_as_u64 = node_id.as_u64().unwrap();
 
                     if nodes.contains_key(&id_as_u64) {
-                        // Remove the node from the hashmap, push it to the way's vector
-                        let node = nodes.remove(&id_as_u64).unwrap();
+
+                        // Remove the node from the hashmap
+                        let mut node = nodes.remove(&id_as_u64).unwrap();
+
+                        let mut way_type: String = String::from("");
+                        if tags.contains_key("highway") {way_type = tags["highway"].clone();}
+                        else if tags.contains_key("waterway") {way_type = tags["waterway"].clone();}
+
+
+                        // Add the way's type to the node
+                        if tags.contains_key("highway") {node.way_type = Some(way_type).clone();}
+                        else if tags.contains_key("waterway") {node.way_type = Some(way_type).clone();}
+
+                        // Push the node to the vector of nodes from the way
                         way.add_node(node);
                     }
                 }
