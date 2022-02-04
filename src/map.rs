@@ -1,5 +1,6 @@
 use crate::geo;
 use crate::style::get_road_repr;
+use crate::style::get_way_index;
 use crate::ascii_map::AsciiMap;
 
 use std::f64::consts::PI;
@@ -10,7 +11,10 @@ use json;
 
 
 
-#[derive(Clone, Copy)]
+
+
+
+#[derive(Copy, Clone)]
 struct Node {
     id: u64,
     lat: f64,
@@ -21,7 +25,7 @@ struct Node {
     next_lat: Option<f64>,
     next_lon: Option<f64>,
 
-    way_type: Option<String>,
+    way_type: Option<usize>,
 }
 
 
@@ -84,31 +88,6 @@ impl Way {
     }
 
 
-    /// Return the string to be used to represent the way (char and ansi code)
-    fn get_str(&self) -> String {
-        // Green BG
-        let mut res: String = Way::default_str();
-
-        if self.tags.contains_key("highway") {
-            res = match self.tags["highway"].as_str() {
-                "motorway" => String::from("\x1b[93m▓\x1b[0m"),
-                "trunk" => String::from("\x1b[33m▓\x1b[0m"),
-                "primary" => String::from("\x1b[33m▒\x1b[0m"),
-                "secondary" => String::from("\x1b[33m▒\x1b[0m"),
-                "tertiary" => String::from("▓"),
-                "unclassified" => String::from("\x1b[90m░\x1b[0m"),
-                "residential" => String::from("\x1b[90m░\x1b[0m"),
-                _ => res
-            }
-        }
-
-        else if self.tags.contains_key("waterway") {
-            res = String::from("\x1b[34m▒\x1b[0m");
-        }
-
-        res
-    }
-
 
     /// Append a node to this way. Modify the node to change previous_lat/lon and next_lat/lon values
     fn add_node(&mut self, mut node: Node) {
@@ -152,6 +131,7 @@ impl Way {
 
             // Add n nodes between current_node and next_node. Modify i accordingly
             for _ in 0..n {
+
                 // Create a new node object
                 let new_node = Node {
                     id: 0,
@@ -252,14 +232,12 @@ impl MapGenerator {
                         // Remove the node from the hashmap
                         let mut node = nodes.remove(&id_as_u64).unwrap();
 
-                        let mut way_type: String = String::from("");
-                        if tags.contains_key("highway") {way_type = tags["highway"].clone();}
-                        else if tags.contains_key("waterway") {way_type = tags["waterway"].clone();}
-
+                        let mut way_type = "";
+                        if tags.contains_key("highway") {way_type = tags["highway"].as_str();}
+                        else if tags.contains_key("waterway") {way_type = tags["waterway"].as_str();}
 
                         // Add the way's type to the node
-                        if tags.contains_key("highway") {node.way_type = Some(way_type).clone();}
-                        else if tags.contains_key("waterway") {node.way_type = Some(way_type).clone();}
+                        node.way_type = get_way_index(way_type);
 
                         // Push the node to the vector of nodes from the way
                         way.add_node(node);
