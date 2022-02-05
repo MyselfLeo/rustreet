@@ -1,9 +1,9 @@
-const PRIMAY_HIGHWAY: [&str; 4] = ["\x1b[33m═\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m║\x1b[0m", "\x1b[33m\\\x1b[0m"];
-const SECONDARY_HIGHWAY: [&str; 4] = ["═", "/", "║", "\\"];
+const PRIMAY_HIGHWAY: [&str; 4] = ["\x1b[93m═\x1b[0m", "\x1b[93m⇗\x1b[0m", "\x1b[93m║\x1b[0m", "\x1b[93m⇖\x1b[0m"];
+const SECONDARY_HIGHWAY: [&str; 4] = ["═", "⇗", "║", "⇖"];
 const TERTIARY_HIGHWAY: [&str; 4] = ["\x1b[33m-\x1b[0m", "\x1b[33m/\x1b[0m", "\x1b[33m|\x1b[0m", "\x1b[33m\\\x1b[0m"];
 const QUATERNARY_HIGHWAY: [&str; 4] = ["-", "/", "|", "\\"];
-const SMALL_HIGHWAY: [&str; 4] = ["\x1b[32m-\x1b[0m", "\x1b[32m/\x1b[0m", "\x1b[32m|\x1b[0m", "\x1b[32m\\\x1b[0m"];
-const VERY_SMALL_HIGHWAY: [&str; 4] = ["⋯", "⋰", "⋮", "⋱"];
+const SMALL_HIGHWAY: [&str; 4] = ["\x1b[90m-\x1b[0m", "\x1b[90m/\x1b[0m", "\x1b[90m|\x1b[0m", "\x1b[90m\\\x1b[0m"];
+const VERY_SMALL_HIGHWAY: [&str; 4] = ["\x1b[32m⋯\x1b[0m", "\x1b[32m⋰\x1b[0m", "\x1b[32m⋮\x1b[0m", "\x1b[32m⋱\x1b[0m"];
 
 
 
