@@ -92,10 +92,9 @@ impl Way {
 
     /// Return the way type of that way
     fn way_type(&self) -> &str {
-        if self.tags.contains_key("highway") {self.tags["highway"].as_str();}
-        else if self.tags.contains_key("waterway") {self.tags["waterway"].as_str();}
-
-        ""
+        if self.tags.contains_key("highway") {self.tags["highway"].as_str()}
+        else if self.tags.contains_key("waterway") {self.tags["waterway"].as_str()}
+        else {""}
     }
 
 
@@ -283,7 +282,8 @@ impl MapGenerator {
             map.lone_nodes.push(nodes[&node_id]);
         }
 
-        //map.ways.sort_by(|a, b| a.compare(b).unwrap());
+        map.ways.sort_by(|a, b| a.compare(b).unwrap());
+        map.ways.reverse();
 
         // Returned finished map struct
         map

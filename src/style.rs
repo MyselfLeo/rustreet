@@ -74,7 +74,6 @@ pub fn get_road_repr(way_type_index: usize, angle: f64) -> String {
     else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {orientation = 1;}
     else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {orientation = 2;}
     else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {orientation = 3;}
-
     
     match way_type_index {
         0 => String::from(PRIMAY_HIGHWAY[orientation]),
