@@ -5,6 +5,7 @@ use crate::ascii_map::AsciiMap;
 
 use std::f64::consts::PI;
 use std::collections::HashMap;
+use std::cmp::Ordering;
 use json;
 
 
@@ -73,7 +74,7 @@ impl Node {
 
 
 
-
+#[derive(Clone)]
 struct Way {
     id: u64,                        // The id of the way, from Overpass API
     nodes: Vec<Node>,               // List of nodes of the way
@@ -86,6 +87,36 @@ impl Way {
     fn default_str() -> String {
         String::from(" ")
     }
+
+
+
+    /// Return the way type of that way
+    fn way_type(&self) -> &str {
+        if self.tags.contains_key("highway") {self.tags["highway"].as_str();}
+        else if self.tags.contains_key("waterway") {self.tags["waterway"].as_str();}
+
+        ""
+    }
+
+
+
+    /// Return the way type index of this way
+    fn way_index(&self) -> Option<usize> {
+        if self.way_type() == "" {Option::None}
+        else {get_way_index(self.way_type())}
+    }
+
+
+
+    /// Compare the importance value of both ways. Used to sort the way vector
+    fn compare(&self, other: &Way) -> Result<Ordering, &'static str> {
+        if self.way_index() == other.way_index() {Ok(Ordering::Equal)}
+        else if self.way_index() < other.way_index() {Ok(Ordering::Less)}
+        else if self.way_index() > other.way_index() {Ok(Ordering::Greater)}
+
+        else {Err("Can't compare way indexes.")}
+    }
+
 
 
 
@@ -232,12 +263,8 @@ impl MapGenerator {
                         // Remove the node from the hashmap
                         let mut node = nodes.remove(&id_as_u64).unwrap();
 
-                        let mut way_type = "";
-                        if tags.contains_key("highway") {way_type = tags["highway"].as_str();}
-                        else if tags.contains_key("waterway") {way_type = tags["waterway"].as_str();}
-
                         // Add the way's type to the node
-                        node.way_type = get_way_index(way_type);
+                        node.way_type = way.way_index();
 
                         // Push the node to the vector of nodes from the way
                         way.add_node(node);
@@ -256,6 +283,11 @@ impl MapGenerator {
             map.lone_nodes.push(nodes[&node_id]);
         }
 
+        //map.ways.sort_by(|a, b| a.compare(b).unwrap());
+
+        // Debug
+        println!("[INFO] Number of ways: {}", map.ways.len());
+
         // Returned finished map struct
         map
     }
@@ -267,7 +299,6 @@ impl MapGenerator {
     pub fn set_size(&mut self, size: u16) {
         self.display_height = size;
     }
-
 
 
 

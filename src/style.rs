@@ -50,11 +50,9 @@ const WAY_TYPES: [&str; 36] = [
 
 /// Return the index of the given way_type, or none if does not exists
 pub fn get_way_index(value: &str) -> Option<usize> {
-    
     for i in 0..36 {
         if WAY_TYPES[i] == value {return Some(i);}
     }
-    
     Option::None
 }
 
