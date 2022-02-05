@@ -285,9 +285,6 @@ impl MapGenerator {
 
         //map.ways.sort_by(|a, b| a.compare(b).unwrap());
 
-        // Debug
-        println!("[INFO] Number of ways: {}", map.ways.len());
-
         // Returned finished map struct
         map
     }

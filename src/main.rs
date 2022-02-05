@@ -13,7 +13,7 @@ use clap::Parser;
 #[derive(Parser)]
 #[clap(author = "myselfleo", version = "0.1.0", about = "Display maps in your terminal !")]
 struct Args {
-    /// If specified, will start Rustreet in interactive mode.
+    /// Specifies if Rustreet must start in one-shot or interactive mode.
     #[clap(short, long)]
     interactive: bool,
 
@@ -32,6 +32,66 @@ struct Args {
     /// The default value depends on the size of the displayed area.
     #[clap(short, long)]
     details_lvl: Option<u16>,
+
+    /// If specified, will display information messages. Don't work in interactive mode.
+    #[clap(long)]
+    info: bool,
+}
+
+
+
+
+
+/// Throw clap error if arguments are not valid
+fn check_arguments(args: &Args) {
+
+    // Create clap App
+    let mut app = clap::App::new("Rustreet");
+
+    if args.zoom <= 0.0 {
+        let err = app.error(clap::ErrorKind::InvalidValue, "The zoom value must be greater than 0.");
+        err.exit();
+    }
+
+
+    // TODO: REMOVE WHEN INTERACTIVE MODE IS IMPLEMENTED
+    if args.interactive {
+        let err = app.error(clap::ErrorKind::ArgumentConflict, "Interactive mode not implemented yet.");
+        err.exit();
+    }
+}
+
+
+
+
+/// Process the request of the user one time, print the generated map and exit the program
+fn one_shot(args: &Args) {
+
+    // Request bounding box from Nominatim
+    if args.info {println!("[INFO] Requesting data from Nominatim API")}
+    let mut searcher = api_wrapper::Searcher::new();
+    let mut bbox = searcher.research(&args.search).unwrap();
+    if args.info {println!("[INFO] Nominatim data received. Bounding box: {}, {}, {}, {} (S/W/N/E)", bbox.coo[0], bbox.coo[1], bbox.coo[2], bbox.coo[3])}
+
+    // Apply zoom
+    bbox.zoom(args.zoom);
+    if args.info && args.zoom != 0.0 {println!("[INFO] Applied a x{} zoom. New bounding box: {}, {}, {}, {} (S/W/N/E)", args.zoom, bbox.coo[0], bbox.coo[1], bbox.coo[2], bbox.coo[3])}
+
+    // Request map data from the Overpass API
+    if args.info {println!("[INFO] Requesting map data from Overpass API")}
+    let mut overpass_data = api_wrapper::OverpassData::new();
+    let data = overpass_data.request(bbox);
+    if args.info {println!("[INFO] Data received")}
+
+    // Generate the map
+    if args.info {println!("[INFO] Generating map of size {}", args.size)}
+    let mut map = map::MapGenerator::from(data, bbox);
+    map.set_size(args.size);
+    if args.info {println!("[INFO] Map generated")}
+
+    // Display map and exit
+    let ascii_map = map.generate_ascii_map().with_decoration();
+    ascii_map.print();
 }
 
 
@@ -40,41 +100,17 @@ struct Args {
 
 
 fn main() {
-    // Create clap App
-    let mut app = clap::App::new("Rustreet");
-
     // Get arguments from command line
     let args = Args::parse();
+    check_arguments(&args);
 
-    // Throw clap error if arguments are not valid
-    if args.zoom <= 0.0 {
-        let err = app.error(clap::ErrorKind::InvalidValue, "The zoom value must be greater than 0.");
-        err.exit();
+    
+    // Run Rustreet in interactive or one-shot mode
+    if args.interactive {
+
     }
 
-
-    let mut nominatim_searcher = api_wrapper::Searcher::new();
-
-    println!("[INFO] Requesting Nominatim data for {}", args.search);
-    let mut base_bbox = nominatim_searcher.research(&args.search).unwrap();
-    println!("[INFO] Data received");
-
-    base_bbox.zoom(args.zoom);
-    let mut overpass_data = api_wrapper::OverpassData::new();
-
-    println!("[INFO] Requesting data from Overpass API");
-    let data = overpass_data.request(base_bbox);
-    println!("[INFO] Data received");
-
-    println!("[INFO] Generating map");
-    let mut map = map::MapGenerator::from(data, base_bbox);
-
-    map.set_size(args.size);
-
-    println!("[INFO] Map generated");
-
-    let ascii_map = map.generate_ascii_map();
-
-    let with_dec = ascii_map.with_decoration();
-    with_dec.print();
+    else {
+        one_shot(&args);
+    }
 }
