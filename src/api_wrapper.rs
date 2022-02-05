@@ -228,6 +228,8 @@ impl OverpassData {
             let request_builder = RequestBuilder::new(bounding_box);
             let request_data = request_builder.get_request_txt(None);
 
+            println!("{}", request_data);
+
             // Create the URL of the request
             let request_url = format!("{}?data={}", OVERPASS_API_URL, request_data);
 

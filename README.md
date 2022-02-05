@@ -11,6 +11,9 @@ Functionnalities:
 - [ ] Allow movement in the map
 - [ ] Change level of detail (residential roads, buildings, etc.) depending on the level of "zoom"
 
+## Known problems
+- Diagonal ways are not displayed properly: they use 2 characters by line instead of one, resulting in a less comprehensive visual.
+
 
 
 ## Credits:

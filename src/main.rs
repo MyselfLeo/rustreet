@@ -9,37 +9,6 @@ use clap::Parser;
 
 
 
-// Args parsing using clap
-#[derive(Parser)]
-#[clap(author = "myselfleo", version = "0.1.0", about = "Display maps in your terminal !")]
-struct Args {
-    /// Specifies if Rustreet must start in one-shot or interactive mode.
-    #[clap(short, long)]
-    interactive: bool,
-
-    /// A string representing a place. Example: Paris, France
-    search: String,
-
-    /// The level of zoom, should be greater than 0. Default is 1.0.
-    #[clap(short, long, default_value_t = 1.0)]
-    zoom: f64,
-
-    /// Specifies the size of the outputted image. Default is 60
-    #[clap(short, long, default_value_t = 60)]
-    size: u16,
-
-    /// Specifies the level of details, between 0 and 6. 0 is the most detailled and 6 the less.
-    /// The default value depends on the size of the displayed area.
-    #[clap(short, long)]
-    details_lvl: Option<u16>,
-
-    /// If specified, will display information messages. Don't work in interactive mode.
-    #[clap(long)]
-    info: bool,
-}
-
-
-
 
 
 /// Throw clap error if arguments are not valid
@@ -94,6 +63,43 @@ fn one_shot(args: &Args) {
     ascii_map.print();
 }
 
+
+
+
+
+
+
+
+
+
+// Args parsing using clap
+#[derive(Parser)]
+#[clap(author = "myselfleo", version = "0.1.0", about = "Display maps in your terminal !")]
+struct Args {
+    /// Specifies if Rustreet must start in one-shot or interactive mode.
+    #[clap(short, long)]
+    interactive: bool,
+
+    /// A string representing a place. Example: Paris, France
+    search: String,
+
+    /// The level of zoom, should be greater than 0. Default is 1.0.
+    #[clap(short, long, default_value_t = 1.0)]
+    zoom: f64,
+
+    /// Specifies the size of the outputted image. Default is 60
+    #[clap(short, long, default_value_t = 60)]
+    size: u16,
+
+    /// Specifies the level of details, between 0 and 6. 0 is the most detailled and 6 the less.
+    /// The default value depends on the size of the displayed area.
+    #[clap(short, long)]
+    details_lvl: Option<u16>,
+
+    /// If specified, will display information messages. Don't work in interactive mode.
+    #[clap(long)]
+    info: bool,
+}
 
 
 
