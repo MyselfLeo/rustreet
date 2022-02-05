@@ -207,8 +207,8 @@ impl MapGenerator {
 
 
     /// Take the data str (as returned by OverpassData struct) and parse it
-    pub fn from(data: String, display_box: geo::BoundingBox) -> MapGenerator {
-        let mut map = MapGenerator {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_height: 60};
+    pub fn from(data: String, display_box: geo::BoundingBox, height: u16) -> MapGenerator {
+        let mut map = MapGenerator {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_height: height};
 
         let json_data: json::JsonValue = json::parse(&data).unwrap();
 
