@@ -6,7 +6,7 @@ use reqwest;
 use json;
 
 static NOMINATIM_API_URL: &str = "https://nominatim.openstreetmap.org/search";
-static OVERPASS_API_URL: &str = "https://lz4.overpass-api.de/api/interpreter";
+static OVERPASS_API_URL: &str = "https://overpass.kumi.systems/api/interpreter";
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
 
 
