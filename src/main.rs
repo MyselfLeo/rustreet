@@ -54,7 +54,7 @@ fn one_shot(args: &Args) {
 
     // Generate the map
     if args.info {println!("[INFO] Generating map of size {}", args.size)}
-    let mut map = map::MapGenerator::from(data, bbox, args.size);
+    let map = map::MapGenerator::from(data, bbox, args.size);
     if args.info {println!("[INFO] Map generated")}
 
     // Display map and exit

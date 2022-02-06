@@ -5,6 +5,9 @@ const QUATERNARY_HIGHWAY: [&str; 4] = ["-", "/", "|", "\\"];
 const SMALL_HIGHWAY: [&str; 4] = ["\x1b[90m-\x1b[0m", "\x1b[90m/\x1b[0m", "\x1b[90m|\x1b[0m", "\x1b[90m\\\x1b[0m"];
 const VERY_SMALL_HIGHWAY: [&str; 4] = ["\x1b[32m⋯\x1b[0m", "\x1b[32m⋰\x1b[0m", "\x1b[32m⋮\x1b[0m", "\x1b[32m⋱\x1b[0m"];
 
+const RIVER: [&str; 4] = ["\x1b[34m═\x1b[0m", "\x1b[34m⇗\x1b[0m", "\x1b[34m║\x1b[0m", "\x1b[34m⇖\x1b[0m"];
+const STREAM: [&str; 4] = ["\x1b[34m-\x1b[0m", "\x1b[34m/\x1b[0m", "\x1b[34m|\x1b[0m", "\x1b[34m\\\x1b[0m"];
+
 
 
 const WAY_TYPES: [&str; 36] = [
@@ -45,6 +48,39 @@ const WAY_TYPES: [&str; 36] = [
     "fairway",
     "fish_pass",
 ];
+
+
+
+/// Return a Vector of way types (motorway, canal, primary, etc.)
+/// corresponding to the given detail level
+pub fn get_way_types(detail_lvl: u8) -> Vec<&'static str> {
+
+    // Base list of way types.
+    let mut res: Vec<&str> = Vec::from(["motorway", "motorway_link", "trunk", "trunk_link", "river"]);
+
+    if detail_lvl > 0 {
+        res.append(&mut Vec::from(["primary", "primary_link", "riverbank", "canal"]));
+    }
+    if detail_lvl > 1 {
+        res.append(&mut Vec::from(["secondary", "secondary_link", "stream"]));
+    }
+    if detail_lvl > 2 {
+        res.append(&mut Vec::from(["tertiary", "tertiary_link"]));
+    }
+    if detail_lvl > 3 {
+        res.append(&mut Vec::from(["unclassified", "bus_guideway", "busway"]))
+    }
+    if detail_lvl > 4 {
+        res.append(&mut Vec::from(["residential", "living_street", "service", "road", "pressurised", "drain", "ditch", "fairway"]));
+    }
+    if detail_lvl > 5 {
+        res.append(&mut Vec::from(["pedestrian", "track", "escape", "raceway", "footway", "steps", "corridor", "path", "fish_pass"]));
+    }
+
+    res
+}
+
+
 
 
 
@@ -103,18 +139,16 @@ pub fn get_road_repr(way_type_index: usize, angle: f64) -> String {
         24 => String::from(VERY_SMALL_HIGHWAY[orientation]),
         25 => String::from(VERY_SMALL_HIGHWAY[orientation]),
 
-        /*
-        "river" => 20,
-        "riverbank" => 20,
-        "stream" => 21,
-        "tidal_channel" => 21,
-        "canal" => 21,
-        "pressurised" => 22,
-        "drain" => 23,
-        "ditch" => 23,
-        "fairway" => 23,
-        "fish_pass" => 24,
-        */
+        26 => String::from(RIVER[orientation]),
+        27 => String::from(RIVER[orientation]),
+        28 => String::from(STREAM[orientation]),
+        29 => String::from(STREAM[orientation]),
+        30 => String::from(STREAM[orientation]),
+        31 => String::from(STREAM[orientation]),
+        32 => String::from(STREAM[orientation]),
+        33 => String::from(STREAM[orientation]),
+        34 => String::from(STREAM[orientation]),
+        35 => String::from(STREAM[orientation]),
 
         _ => String::from(" "),
     }

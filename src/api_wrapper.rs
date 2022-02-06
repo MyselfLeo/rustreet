@@ -1,4 +1,5 @@
 use crate::geo;
+use crate::style;
 
 use std::collections::HashMap;
 use std::io;
@@ -8,11 +9,6 @@ use json;
 static NOMINATIM_API_URL: &str = "https://nominatim.openstreetmap.org/search";
 static OVERPASS_API_URL: &str = "https://overpass.kumi.systems/api/interpreter";
 static APP_USER_AGENT: &str = concat!(env!("CARGO_PKG_NAME"), "/", env!("CARGO_PKG_VERSION"));
-
-
-static HIGHWAY_LEVELS: [&str; 7] = ["residential", "unclassified", "tertiary", "secondary", "primary", "trunk", "motorway"];
-static WATERWAY_LEVELS: [&str; 6] = ["ditch", "drain", "stream", "river", "canal", "riverbank"];
-
 
 
 
@@ -36,8 +32,12 @@ impl RequestBuilder {
 
     /// Take the scale of the map (i.e the width of the displayed map, in km) and return the corresponding level of details
     pub fn get_lvl_details(scale: f64) -> u8 {
-        // TODO: add proper algorithm
-        return 0;
+        if scale < 0.3 {6}
+        else if scale < 3.0 {5}
+        else if scale < 5.0 {4}
+        else if scale < 20.0 {3}
+        else if scale < 40.0 {2}
+        else  {1}
     }
 
 
@@ -78,11 +78,12 @@ impl RequestBuilder {
             // List every level of detail required
             request.push_str("(\n(\n");
 
-            for x in RequestBuilder::get_lvl_details(self.bounding_box.dim_km[0])..6 {
-                request.push_str(format!("way[highway={}]({});\n", HIGHWAY_LEVELS[x as usize], bbox_str).as_str());
-                request.push_str(format!("way[waterway={}]({});\n", WATERWAY_LEVELS[x as usize], bbox_str).as_str());
+            let detail_lvl = RequestBuilder::get_lvl_details(self.bounding_box.dim_km[0]);
+            let way_types = style::get_way_types(detail_lvl);
+
+            for way_type in &way_types {
+                request.push_str(format!("way[highway={}]({});\n", way_type, bbox_str).as_str());
             }
-            request.push_str(format!("way[highway={}]({});\n", HIGHWAY_LEVELS[6], bbox_str).as_str());
 
             // request.push_str(format!(");\nnode(w)({});\n);\nout;\n", bbox_str).as_str());
             request.push_str(");\nnode(w);\n);\nout;\n");
