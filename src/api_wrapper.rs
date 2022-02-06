@@ -82,7 +82,17 @@ impl RequestBuilder {
             let way_types = style::get_way_types(detail_lvl);
 
             for way_type in &way_types {
-                request.push_str(format!("way[highway={}]({});\n", way_type, bbox_str).as_str());
+
+                // Check if the given way_type is for a highway or a waterway.
+                // way_index between 0 and 25 are highways, way_index greater than 25 are waterway.
+                if style::get_way_index(way_type).unwrap() > 25 {
+                    request.push_str(format!("way[waterway={}]({});\n", way_type, bbox_str).as_str());
+                }
+                else {
+                    request.push_str(format!("way[highway={}]({});\n", way_type, bbox_str).as_str());
+                }
+
+                
             }
 
             // request.push_str(format!(");\nnode(w)({});\n);\nout;\n", bbox_str).as_str());

@@ -37,6 +37,7 @@ const WAY_TYPES: [&str; 36] = [
     "steps",
     "corridor",
     "path",
+
     "river",
     "riverbank",
     "stream",
@@ -48,6 +49,20 @@ const WAY_TYPES: [&str; 36] = [
     "fairway",
     "fish_pass",
 ];
+
+
+
+
+
+/// Return the index of the given way_type, or none if does not exists
+pub fn get_way_index(value: &str) -> Option<usize> {
+    for i in 0..36 {
+        if WAY_TYPES[i] == value {return Some(i);}
+    }
+    Option::None
+}
+
+
 
 
 
@@ -84,15 +99,6 @@ pub fn get_way_types(detail_lvl: u8) -> Vec<&'static str> {
 
 
 
-/// Return the index of the given way_type, or none if does not exists
-pub fn get_way_index(value: &str) -> Option<usize> {
-    for i in 0..36 {
-        if WAY_TYPES[i] == value {return Some(i);}
-    }
-    Option::None
-}
-
-
 
 /// Return true if n is between m1 and m2 (included)
 fn is_between(n: f64, m1: f64, m2: f64) -> bool {n >= m1 && n <= m2}
@@ -110,7 +116,7 @@ pub fn get_road_repr(way_type_index: usize, angle: f64) -> String {
     else if is_between(angle, 112.5, 157.5) || is_between(angle, 292.5, 337.5) {orientation = 1;}
     else if is_between(angle, 337.5, 360.0) || is_between(angle, 0.0, 22.5) {orientation = 2;}
     else if is_between(angle, 22.5, 67.5) || is_between(angle, 202.5, 247.5) {orientation = 3;}
-    
+
     match way_type_index {
         0 => String::from(PRIMAY_HIGHWAY[orientation]),
         1 => String::from(PRIMAY_HIGHWAY[orientation]),

@@ -273,6 +273,7 @@ impl MapGenerator {
                 // Interpolate the nodes of that way
                 way.interpolate_nodes(map.display_height as u32);
 
+
                 map.ways.push(way);
             }
         }
