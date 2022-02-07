@@ -49,12 +49,12 @@ fn one_shot(args: &Args) {
     // Request map data from the Overpass API
     if args.info {println!("[INFO] Requesting map data from Overpass API")}
     let mut overpass_data = api_wrapper::OverpassData::new();
-    let data = overpass_data.request(bbox);
+    let data = overpass_data.request(bbox, args.timeout);
     if args.info {println!("[INFO] Data received")}
 
     // Generate the map
     if args.info {println!("[INFO] Generating map of size {}", args.size)}
-    let map = map::MapGenerator::from(data, bbox, args.size);
+    let map = map::MetaMap::from(data, bbox, args.size);
     if args.info {println!("[INFO] Map generated")}
 
     // Display map and exit
@@ -94,6 +94,10 @@ struct Args {
     /// The default value depends on the size of the displayed area.
     #[clap(short, long)]
     details_lvl: Option<u16>,
+
+    /// Set the timeout for requests to Overpass API. Default: 30 (secs)
+    #[clap(short, long, default_value_t = 30)]
+    timeout: u32,
 
     /// If specified, will display information messages. Don't work in interactive mode.
     #[clap(long)]

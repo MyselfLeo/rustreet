@@ -76,7 +76,6 @@ impl Node {
 
 #[derive(Clone)]
 struct Way {
-    id: u64,                        // The id of the way, from Overpass API
     nodes: Vec<Node>,               // List of nodes of the way
     tags: HashMap<String, String>,  // Tags of this way (like "highway", "lanes", "max_speed", etc.)
 }
@@ -193,8 +192,8 @@ impl Way {
 
 
 
-/// Structure used to generate a ascii map struct
-pub struct MapGenerator {
+/// Structure representing the ascii map with metadatas
+pub struct MetaMap {
     display_box: geo::BoundingBox,         // Only the nodes contained in this box will be displayed
     ways: Vec<Way>,                        // List of ways
     lone_nodes: Vec<Node>,                 // List of nodes (not part of any way)
@@ -203,12 +202,12 @@ pub struct MapGenerator {
 }
 
 
-impl MapGenerator {
+impl MetaMap {
 
 
     /// Take the data str (as returned by OverpassData struct) and parse it
-    pub fn from(data: String, display_box: geo::BoundingBox, height: u16) -> MapGenerator {
-        let mut map = MapGenerator {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_height: height};
+    pub fn from(data: String, display_box: geo::BoundingBox, height: u16) -> MetaMap {
+        let mut map = MetaMap {display_box, ways: Vec::new(), lone_nodes: Vec::new(), display_height: height};
 
         let json_data: json::JsonValue = json::parse(&data).unwrap();
 
@@ -248,7 +247,6 @@ impl MapGenerator {
                 }
 
                 let mut way = Way {
-                    id: element["id"].as_u64().unwrap(),
                     nodes: Vec::new(),
                     tags: tags.clone(),
                 };
@@ -292,11 +290,40 @@ impl MapGenerator {
 
 
 
-
-    /// Set the size of the displayed ascii map (in characters)
-    pub fn set_size(&mut self, size: u16) {
-        self.display_height = size;
+    /// Return the approximate distance a character represents (in km)
+    fn get_scale(&self) -> f64 {
+        self.display_box.dim_km[0] / self.display_height as f64
     }
+
+
+
+    /// Return a string representing the scale of this map.
+    pub fn get_scale_repr(&self) -> String {
+
+        let mut scale_repr: String = String::from("");
+        let char_size = self.get_scale();           // in km
+
+        // Compute the distance represented by the scale.
+        let scale_value = char_size * 10.0;
+
+        // TODO: Change the size of the scale dynamically
+        scale_repr = String::from("⊢────────⊣ ");
+
+        if scale_value < 10.0 {
+            let number_rounded = (scale_value * 10.0).floor() as u64 * 10;
+            scale_repr.push_str(&number_rounded.to_string());
+            scale_repr.push_str("m");
+        }
+        else {
+            let number_rounded = (scale_value * 10.0).floor() as u64 / 10;
+            scale_repr.push_str(&number_rounded.to_string());
+            scale_repr.push_str("km");
+        }
+
+        scale_repr
+    }
+
+
 
 
 
@@ -344,7 +371,7 @@ impl MapGenerator {
 
 
         // Return the AsciiMap
-        let mut ascii_map = AsciiMap::from(data);
+        let mut ascii_map = AsciiMap::from(data, &self.get_scale_repr());
         ascii_map.double();
         ascii_map
     }

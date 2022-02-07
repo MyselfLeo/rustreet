@@ -3,13 +3,15 @@ pub struct AsciiMap {
     height: u32,
     pub width: u32,
     is_decorated: bool,
+
+    scale_str: String,
 }
 
 
 impl AsciiMap {
 
     /// Return a new AsciiMap
-    pub fn from(data: Vec<Vec<String>>) -> AsciiMap {
+    pub fn from(data: Vec<Vec<String>>, scale_str: String) -> AsciiMap {
         let height = data.len() as u32;
         let width = data[0].len() as u32;
 
@@ -18,6 +20,7 @@ impl AsciiMap {
             height,
             width,
             is_decorated: false,
+            scale_str,
         }
     }
 
@@ -85,7 +88,7 @@ impl AsciiMap {
 
 
         // Return the decorated AsciiMap
-        let mut res = AsciiMap::from(new_data);
+        let mut res = AsciiMap::from(new_data, self.scale_str);
         res.is_decorated = true;
         res
     }

@@ -43,11 +43,11 @@ impl RequestBuilder {
 
 
     /// Create a new RequestBuilder. The bounding_box parameter is the bounding box of the research
-    pub fn new(bounding_box: geo::BoundingBox) -> RequestBuilder {
+    pub fn new(bounding_box: geo::BoundingBox, timeout: u32) -> RequestBuilder {
         RequestBuilder {
             get_building: false,
             bounding_box: bounding_box,
-            timeout: 30,
+            timeout: timeout,
         }
     }
 
@@ -219,7 +219,7 @@ impl OverpassData {
 
     /// Takes a bounding box as parameter (min lat, min long, max lat, max long) and returns the result of the Overpass API.
     /// The result is cached for future use.
-    pub fn request(&mut self, bounding_box: geo::BoundingBox) -> String {
+    pub fn request(&mut self, bounding_box: geo::BoundingBox, timeout: u32) -> String {
         let result: String;
 
         // Format the key used in the cache hashmap
@@ -236,7 +236,7 @@ impl OverpassData {
         // If not cached, make a request to the Overpass API and cache the result
         else {
             // Generate request data
-            let request_builder = RequestBuilder::new(bounding_box);
+            let request_builder = RequestBuilder::new(bounding_box, timeout);
             let request_data = request_builder.get_request_txt(None);
 
             // Create the URL of the request
