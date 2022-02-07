@@ -2,6 +2,14 @@
 name = "rustreet"
 version = "0.1.0"
 edition = "2021"
+authors = ["myselfleo <myselfleo@outlook.fr>"]
+license = "GNU GPLv3"
+description = "Display map in your terminal!"
+readme = "README.md"
+homepage = "https://github.com/MyselfLeo/rustreet"
+repository = "https://github.com/MyselfLeo/rustreet"
+keywords = ["cli", "map"]
+categories = ["command-line-utilities"]
 
 
 [dependencies]
