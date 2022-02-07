@@ -1,26 +1,29 @@
+use crate::geo::BoundingBox;
+
+
+
 pub struct AsciiMap {
+    display_box: BoundingBox,
     data: Vec<Vec<String>>,
     height: u32,
     pub width: u32,
     is_decorated: bool,
-
-    scale_str: String,
 }
 
 
 impl AsciiMap {
 
     /// Return a new AsciiMap
-    pub fn from(data: Vec<Vec<String>>, scale_str: String) -> AsciiMap {
+    pub fn from(display_box: BoundingBox, data: Vec<Vec<String>>) -> AsciiMap {
         let height = data.len() as u32;
         let width = data[0].len() as u32;
 
         AsciiMap {
+            display_box,
             data,
             height,
             width,
             is_decorated: false,
-            scale_str,
         }
     }
 
@@ -88,10 +91,46 @@ impl AsciiMap {
 
 
         // Return the decorated AsciiMap
-        let mut res = AsciiMap::from(new_data, self.scale_str);
+        let mut res = AsciiMap::from(self.display_box, new_data);
         res.is_decorated = true;
         res
     }
+
+
+
+
+    /// Return the approximate distance a character represents (in km)
+    fn get_scale(&self) -> f64 {
+        self.display_box.dim_km[0] / self.width as f64
+    }
+
+
+
+    /// Return a string representing the scale of this map.
+    fn get_scale_repr(&self) -> String {
+
+        let char_size = self.get_scale();           // in km
+
+        // Compute the distance represented by the scale.
+        let scale_value = char_size * 10.0;
+
+        // TODO: Change the size of the scale dynamically
+        let mut scale_repr = String::from("⊢────────⊣ ");
+
+        if scale_value < 10.0 {
+            let number_rounded = (scale_value * 100.0).round() as u64 * 10;
+            scale_repr.push_str(&number_rounded.to_string());
+            scale_repr.push_str("m");
+        }
+        else {
+            let number_rounded = (scale_value * 10.0).round() as u64 / 10;
+            scale_repr.push_str(&number_rounded.to_string());
+            scale_repr.push_str("km");
+        }
+
+        scale_repr
+    }
+
 
 
 
@@ -104,5 +143,8 @@ impl AsciiMap {
             }
             print!("\n");
         }
+
+        // Print the scale
+        println!("{}", self.get_scale_repr());
     }
 }

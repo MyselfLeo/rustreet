@@ -82,11 +82,11 @@ struct Args {
     /// A string representing a place. Example: Paris, France
     search: String,
 
-    /// The level of zoom, should be greater than 0. Default is 1.0.
+    /// The level of zoom, should be greater than 0.
     #[clap(short, long, default_value_t = 1.0)]
     zoom: f64,
 
-    /// Specifies the size of the outputted image. Default is 60
+    /// Specifies the size of the outputted image.
     #[clap(short, long, default_value_t = 60)]
     size: u16,
 
@@ -95,7 +95,7 @@ struct Args {
     #[clap(short, long)]
     details_lvl: Option<u16>,
 
-    /// Set the timeout for requests to Overpass API. Default: 30 (secs)
+    /// Set the timeout for requests to Overpass API.
     #[clap(short, long, default_value_t = 30)]
     timeout: u32,
 

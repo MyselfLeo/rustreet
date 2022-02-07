@@ -290,41 +290,6 @@ impl MetaMap {
 
 
 
-    /// Return the approximate distance a character represents (in km)
-    fn get_scale(&self) -> f64 {
-        self.display_box.dim_km[0] / self.display_height as f64
-    }
-
-
-
-    /// Return a string representing the scale of this map.
-    pub fn get_scale_repr(&self) -> String {
-
-        let mut scale_repr: String = String::from("");
-        let char_size = self.get_scale();           // in km
-
-        // Compute the distance represented by the scale.
-        let scale_value = char_size * 10.0;
-
-        // TODO: Change the size of the scale dynamically
-        scale_repr = String::from("⊢────────⊣ ");
-
-        if scale_value < 10.0 {
-            let number_rounded = (scale_value * 10.0).floor() as u64 * 10;
-            scale_repr.push_str(&number_rounded.to_string());
-            scale_repr.push_str("m");
-        }
-        else {
-            let number_rounded = (scale_value * 10.0).floor() as u64 / 10;
-            scale_repr.push_str(&number_rounded.to_string());
-            scale_repr.push_str("km");
-        }
-
-        scale_repr
-    }
-
-
-
 
 
     pub fn generate_ascii_map(&self) -> AsciiMap {
@@ -371,7 +336,7 @@ impl MetaMap {
 
 
         // Return the AsciiMap
-        let mut ascii_map = AsciiMap::from(data, &self.get_scale_repr());
+        let mut ascii_map = AsciiMap::from(self.display_box, data);
         ascii_map.double();
         ascii_map
     }
